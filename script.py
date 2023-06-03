@@ -11,7 +11,7 @@ def create_table():
             name TEXT NOT NULL,
             date_birth DATE NOT NULL,
             add_info TEXT,
-            user_id VARCHAR(15) NOT NULL CHECK (user_id ~* '^[0-9]+$'),
+            user_id BIGINT NOT NULL,
             UNIQUE(name, date_birth)
         );
         CREATE INDEX index_person ON person (name, date_birth);
@@ -31,7 +31,7 @@ def insert_execute(name, date, add, user_id):
         cursor = conn.cursor()
         select_query = f"""SELECT * FROM person
                     WHERE user_id = {user_id} AND
-                    name = {name} AND date = {date}"""
+                    name = '{name}' AND date_birth = '{date}' """
         cursor.execute(select_query)
         if cursor.rowcount == 0:
             insert_query = f"""INSERT INTO person (name, date_birth, add_info, user_id)
