@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from numers import numers
-
+nums = ['1', '2', '3', '5', '6', '7', '8', '9']
 def check_date(date_str):
     try:
         datetime.strptime(date_str, '%d.%m.%Y')
@@ -18,7 +18,7 @@ def calculate(date_str):
         for_sum = str(sum(map(int, list(for_sum))))
         digits = digits + for_sum
 
-    for x in ['1', '2', '3', '5', '6', '7', '8', '9']:
+    for x in nums:
         str_n = ''.join([x]*digits.count(x)) # 11 | 22 | 333
         if str_n == '': str_n = '(' + x + ')' # (5)
         n = len(str_n)

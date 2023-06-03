@@ -1,9 +1,8 @@
 import telebot
 from telebot import types
 from calculate import *
-from config import *
-
-import psycopg2
+from config import TG_TOKEN
+from script import insert_execute
 
 bot = telebot.TeleBot(TG_TOKEN)
 
@@ -34,12 +33,10 @@ def handle_command(message):
 @bot.message_handler(commands=['start'])
 def start(message):
     global CORRECT_ID, SKIP_ID
-    print(message)
     # удаление кнопок Верно/Исправить
     if CORRECT_ID > -1:
         bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=CORRECT_ID, reply_markup=None)
         CORRECT_ID = -1
-    print(SKIP_ID)
     if SKIP_ID > -1:
         bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=SKIP_ID, reply_markup=None)
         SKIP_ID = -1
@@ -96,8 +93,9 @@ def input_add(message, name, date, default=False):
     global SKIP_ID    
     if message.text[1:] in my_commands: handle_command(message)
     else:
-        bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=SKIP_ID, reply_markup=None)
-        SKIP_ID = -1
+        if SKIP_ID > -1:
+            bot.edit_message_reply_markup(chat_id=message.chat.id, message_id=SKIP_ID, reply_markup=None)
+            SKIP_ID = -1
         add = '-' if default else message.text
         check_info(message, name, date, add)
 
@@ -114,7 +112,7 @@ def check_info(message, name, date, add):
 # обработка кнопок
 @bot.callback_query_handler(func=lambda call: True)
 def callback_worker(call):
-    global CORRECT_ID
+    global CORRECT_ID, SKIP_ID
     if call.data == "go_count":
         bot.answer_callback_query(call.id) 
         bot.clear_step_handler(call.message)
@@ -123,6 +121,7 @@ def callback_worker(call):
     elif call.data.startswith("skip"):
         bot.answer_callback_query(call.id) 
         bot.clear_step_handler(call.message)
+        SKIP_ID = -1
         data = call.data.split("_")
         name = data[1]
         date = data[2]
@@ -149,8 +148,16 @@ def callback_worker(call):
 
 def show_info(message, name, date, add):
     res = calculate(date)
-    date_f = datetime.strptime(date, '%d.%m.%Y').date()
+    q = 0
+    all_str = ''
+    for v in res.values():
+        my_str = nums[q] + ') ' + v + '\n'
+        all_str = all_str + my_str
+        q+=1
+    bot.send_message(message.chat.id, all_str)
 
+    date_f = datetime.strptime(date, '%d.%m.%Y').date()
+    insert_execute(name, date_f, add, message.from_user.id)
 if __name__ == "__main__":
     # Запуск бота
     bot.infinity_polling()

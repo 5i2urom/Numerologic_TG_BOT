@@ -1,4 +1,4 @@
-from config import *
+from config import DB_URL
 import psycopg2
 def create_table():
     try:
@@ -24,4 +24,25 @@ def create_table():
         print("Таблица успешно создана.")
     except (Exception, psycopg2.Error) as error:
         print("Ошибка при создании таблицы:", error)
-create_table()
+
+def insert_execute(name, date, add, user_id):
+    try:
+        conn = psycopg2.connect(DB_URL)
+        cursor = conn.cursor()
+        select_query = f"""SELECT * FROM person
+                    WHERE user_id = {user_id} AND
+                    name = {name} AND date = {date}"""
+        cursor.execute(select_query)
+        if cursor.rowcount == 0:
+            insert_query = f"""INSERT INTO person (name, date_birth, add_info, user_id)
+                               VALUES (%s, %s, %s, %s);"""
+            record_to_insert = (name, date, add, user_id)
+            cursor.execute(insert_query, record_to_insert) 
+        conn.commit()
+
+        cursor.close()
+        conn.close()
+        print("Успешно")
+    except (Exception, psycopg2.Error) as error:
+        print("Ошибка", error)   
+#create_table()
