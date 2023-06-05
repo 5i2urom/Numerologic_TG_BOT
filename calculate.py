@@ -11,13 +11,13 @@ def check_date(date_str):
 
 def calculate(date_str):
     dict_info={}
-
+    need_str=date_str
     digits = ''.join([s for s in date_str if s != '.'])
     for_sum = digits
     while len(for_sum) > 1: 
         for_sum = str(sum(map(int, list(for_sum))))
+        need_str = need_str + f' {for_sum}'
         digits = digits + for_sum
-
     for x in nums:
         str_n = ''.join([x]*digits.count(x)) # 11 | 22 | 333
         if str_n == '': str_n = '(' + x + ')' # (5)
@@ -30,4 +30,4 @@ def calculate(date_str):
             ind = key_str.find('x') + 1
             key_str = key_str[:ind] + str(n) + key_str[ind+1:]   
         dict_info[str_n] = key_str
-    return dict_info   
+    return [dict_info, need_str]
