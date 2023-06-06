@@ -42,6 +42,8 @@ def input_password(message):
         authorized.append(message.chat.id)
         with open('users.txt', 'a') as file:
             file.write(f'{message.chat.id}\n')
+        with open('reg.txt', 'a') as file:
+            file.write(f'{message.chat.id}_{message.chat.username}_{message.chat.first_name}_{message.chat.last_name}_\n')
         go_count = types.InlineKeyboardMarkup()
         go_count_button = types.InlineKeyboardButton(text='Посчитать человека', callback_data='go_count')
         go_count.add(go_count_button)
@@ -158,7 +160,7 @@ def show_info(message, name, date):
         bot.send_message(message.chat.id, final_msg)
         with open('info.txt', 'a') as file2:
             cur_time = datetime.datetime.now()
-            file2.write(f'User: {message.chat.first_name} Date: {cur_time}\n{final_msg}\n')        
+            file2.write(f'''Username: {message.chat.username} First name: {message.chat.first_name} Last name: {message.chat.last_name}\nDate: {cur_time}\n{final_msg}\n''')        
 if __name__ == "__main__":
     # Запуск бота
     bot.infinity_polling()
